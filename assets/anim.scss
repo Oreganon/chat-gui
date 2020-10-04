@@ -285,6 +285,9 @@ $spritesDir : '../../emotes/emoticons-animated/';
         $end-on-frame: 0,
         $end-on-last-frame: false,
         $can-animate-forever: true,
+        $extra-animation: false,
+        $extra-animation-length: 100ms,
+        $extra-animation-repeat: 2,
         $file-ext: '.png') {
 
     $path: $spritesDir + $file-name + $file-ext;
@@ -294,6 +297,10 @@ $spritesDir : '../../emotes/emoticons-animated/';
         @error
             "$sprite-width should be divisible by $frame-count to prevent blurry rendering
             Error on sprite-animation \"#{$file-name}\"";
+    }
+
+    @keyframes extra-anim {
+        @content;
     }
 
     @keyframes #{$file-name}-anim {
@@ -311,17 +318,25 @@ $spritesDir : '../../emotes/emoticons-animated/';
         height: $sprite-height;
         margin-top: -$sprite-height;
         background: url($path) left center;
-        animation: #{$file-name}-anim $animation-length steps($frame-count) $repeat none;
+        
+        @if $extra-animation != false {
+            animation: #{$file-name}-anim $animation-length steps($frame-count) $repeat none, extra-anim $extra-animation-length $extra-animation-repeat;
+            &:hover {
+                animation: #{$file-name}-anim $animation-length steps($frame-count) infinite, extra-anim $extra-animation-length infinite;
+            }
+        }
+        @else {
+            animation: #{$file-name}-anim $animation-length steps($frame-count) $repeat none;
+            &:hover {
+                animation: #{$file-name}-anim $animation-length steps($frame-count) infinite;
+            }
+        }
 
         @if $end-on-last-frame {
             background-position: #{$sprite-width / $frame-count};
         }
         @else if $end-on-frame != 0 {
             background-position: #{$sprite-width / $frame-count * $end-on-frame};
-        }
-
-        &:hover {
-            animation: #{$file-name}-anim $animation-length steps($frame-count) infinite;
         }
 
         @if $can-animate-forever {
@@ -600,8 +615,25 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $sprite-height: 28px,
     $animation-length: 6500ms,
     $repeat: 2,
-    $can-animate-forever: true
-);
+    $can-animate-forever: true,
+    $extra-animation: true,
+    $extra-animation-length: 250ms,
+    $extra-animation-repeat: 3
+) {
+    0% {
+        transform: translate(0px 0px);
+    }
+    25% {
+        transform: translate(0px, 4px);
+    }
+    75% {
+        transform: rotate(-10deg);
+    }
+    100% {
+        transform: rotate(0deg);
+        transform-origin: 4px bottom;
+    }
+};
 
 @include sprite-animation(
     $file-name: WAYTOODANK,
