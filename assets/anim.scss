@@ -190,22 +190,22 @@ $context-css-animated-emote-mixin: false;
 
 @include css-animated-emote(REE) {
     @include emote-animation(100ms, 7) {
-        from { left: 0; }
-        to { left: 3px; }
+        from { transform: translateX(0); }
+        to { transform: translateX(3px); }
     }
 }
 
 @include css-animated-emote(ITSRAWWW) {
     @include emote-animation(100ms, 7) {
-        0% { left: 0; }
-        100% { left: 2px; }
+        0% { transform: translateX(0); }
+        100% { transform: translateX(3px); }
     }
 }
 
 @include css-animated-emote(DJPepo, true) {
     @include emote-animation(500ms, 7) {
-        0% { top: 10; }
-        100% { top: 12px; }
+        0% { translate: transformY(0); }
+        100% { translate: transformY(12px); }
     }
 }
 
@@ -235,8 +235,8 @@ $context-css-animated-emote-mixin: false;
 }
 
 @keyframes rustle {
-    from { left: 0; }
-    to { left: 3px; }
+    from { transform: translateX(0); }
+    to { transform: translateX(3px); }
 }
 
 @keyframes spin {
@@ -280,14 +280,19 @@ $spritesDir : '../../emotes/emoticons-animated/';
         $frame-count,
         $sprite-width,
         $sprite-height,
-        $animation-length,
-        $repeat,
+        $animation-duration,
+        $iteration-count,
         $end-on-frame: 0,
         $end-on-last-frame: false,
         $can-animate-forever: true,
         $extra-animation: false,
-        $extra-animation-length: 100ms,
-        $extra-animation-repeat: 2,
+        $extra-animation-duration: 0s,
+        $extra-animation-timing-function: ease,
+        $extra-animation-delay: 0s,
+        $extra-animation-iteration-count: 1,
+        $extra-animation-direction: normal,
+        $extra-animation-fill-mode: none,
+        $extra-animation-play-state: running,
         $file-ext: '.png') {
 
     $path: $spritesDir + $file-name + $file-ext;
@@ -299,8 +304,10 @@ $spritesDir : '../../emotes/emoticons-animated/';
             Error on sprite-animation \"#{$file-name}\"";
     }
 
-    @keyframes extra-anim {
-        @content;
+    @if $extra-animation {
+        @keyframes #{$file-name}-extra-anim {
+            @content
+        }
     }
 
     @keyframes #{$file-name}-anim {
@@ -318,17 +325,17 @@ $spritesDir : '../../emotes/emoticons-animated/';
         height: $sprite-height;
         margin-top: -$sprite-height;
         background: url($path) left center;
-        
-        @if $extra-animation != false {
-            animation: #{$file-name}-anim $animation-length steps($frame-count) $repeat none, extra-anim $extra-animation-length $extra-animation-repeat;
+
+        @if $extra-animation {
+            animation: #{$file-name}-anim $animation-duration steps($frame-count) $iteration-count none, #{$file-name}-extra-anim $extra-animation-duration $extra-animation-timing-function $extra-animation-delay $extra-animation-iteration-count $extra-animation-direction $extra-animation-fill-mode $extra-animation-play-state;
             &:hover {
-                animation: #{$file-name}-anim $animation-length steps($frame-count) infinite, extra-anim $extra-animation-length infinite;
+                animation: #{$file-name}-anim $animation-duration steps($frame-count) infinite, #{$file-name}-extra-anim $extra-animation-duration $extra-animation-timing-function $extra-animation-delay infinite $extra-animation-direction $extra-animation-fill-mode $extra-animation-play-state;
             }
         }
         @else {
-            animation: #{$file-name}-anim $animation-length steps($frame-count) $repeat none;
+            animation: #{$file-name}-anim $animation-duration steps($frame-count) $iteration-count none;
             &:hover {
-                animation: #{$file-name}-anim $animation-length steps($frame-count) infinite;
+                animation: #{$file-name}-anim $animation-duration steps($frame-count) infinite;
             }
         }
 
@@ -341,7 +348,7 @@ $spritesDir : '../../emotes/emoticons-animated/';
 
         @if $can-animate-forever {
             &-animate-forever {
-                animation: #{$file-name}-anim $animation-length steps($frame-count) infinite;
+                animation: #{$file-name}-anim $animation-duration steps($frame-count) infinite;
             }
         }
     }
@@ -349,15 +356,15 @@ $spritesDir : '../../emotes/emoticons-animated/';
     .generify-emote-#{$file-name} {
         @include dank-animation(
             $file-name: $file-name,
-            $animation-length: $animation-length,
-            $repeat: $repeat,
+            $animation-duration: $animation-duration,
+            $iteration-count: $iteration-count,
         )
     }
 
     .generify-emote-#{$file-name} .fast {
         .chat-emote-#{$file-name} {
-            animation-duration: $animation-length * 0.5;
-            animation-iteration-count: $repeat * 2;
+            animation-duration: $animation-duration * 0.5;
+            animation-iteration-count: $iteration-count * 2;
 
             &:hover {
                 animation-iteration-count: infinite;
@@ -373,13 +380,13 @@ $spritesDir : '../../emotes/emoticons-animated/';
 
     .generify-emote-#{$file-name} .slow {
         .chat-emote-#{$file-name} {
-            animation-duration: $animation-length * 2;
+            animation-duration: $animation-duration * 2;
         }
 
         @include dank-animation(
             $file-name: $file-name,
-            $animation-length: $animation-length * 2,
-            $repeat: $repeat,
+            $animation-duration: $animation-duration * 2,
+            $iteration-count: $iteration-count,
             $dank-animation-duration: 2s
         )
     }
@@ -387,11 +394,11 @@ $spritesDir : '../../emotes/emoticons-animated/';
 
 @mixin dank-animation(
         $file-name,
-        $animation-length,
-        $repeat,
+        $animation-duration,
+        $iteration-count,
         $dank-animation-duration: 1s) {
     .generify-dank {
-        animation: dankmemes-anim $dank-animation-duration #{$animation-length / $dank-animation-duration * $repeat};
+        animation: dankmemes-anim $dank-animation-duration #{$animation-duration / $dank-animation-duration * $iteration-count};
     }
 
     .generify-dank:hover {
@@ -404,8 +411,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 10,
     $sprite-width: 320px,
     $sprite-height: 32px,
-    $animation-length: 800ms,
-    $repeat: 3
+    $animation-duration: 800ms,
+    $iteration-count: 3
 );
 
 @include sprite-animation(
@@ -413,8 +420,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 2,
     $sprite-width: 44px,
     $sprite-height: 32px,
-    $animation-length: 400ms,
-    $repeat: 5
+    $animation-duration: 400ms,
+    $iteration-count: 5
 );
 
 @include sprite-animation(
@@ -422,8 +429,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 60,
     $sprite-width: 1920px,
     $sprite-height: 32px,
-    $animation-length: 800ms,
-    $repeat: 2
+    $animation-duration: 800ms,
+    $iteration-count: 2
 );
 
 @include sprite-animation(
@@ -431,8 +438,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 20,
     $sprite-width: 640px,
     $sprite-height: 32px,
-    $animation-length: 600ms,
-    $repeat: 5
+    $animation-duration: 600ms,
+    $iteration-count: 5
 );
 
 @include sprite-animation(
@@ -440,8 +447,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 29,
     $sprite-width: 1276px,
     $sprite-height: 30px,
-    $animation-length: 2000ms,
-    $repeat: 3
+    $animation-duration: 2000ms,
+    $iteration-count: 3
 );
 
 @include sprite-animation(
@@ -449,8 +456,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 10,
     $sprite-width: 460px,
     $sprite-height: 32px,
-    $animation-length: 500ms,
-    $repeat: 5
+    $animation-duration: 500ms,
+    $iteration-count: 5
 );
 
 @include sprite-animation(
@@ -458,8 +465,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 4,
     $sprite-width: 132px,
     $sprite-height: 32px,
-    $animation-length: 250ms,
-    $repeat: 8
+    $animation-duration: 250ms,
+    $iteration-count: 8
 );
 
 @include sprite-animation(
@@ -467,8 +474,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 9,
     $sprite-width: 360px,
     $sprite-height: 32px,
-    $animation-length: 4000ms,
-    $repeat: 2,
+    $animation-duration: 4000ms,
+    $iteration-count: 2,
     $end-on-last-frame: true,
     $can-animate-forever: false
 );
@@ -478,8 +485,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 15,
     $sprite-width: 750px,
     $sprite-height: 32px,
-    $animation-length: 1000ms,
-    $repeat: 2
+    $animation-duration: 1000ms,
+    $iteration-count: 2
 );
 
 @include sprite-animation(
@@ -487,8 +494,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 101,
     $sprite-width: 3232px,
     $sprite-height: 32px,
-    $animation-length: 4000ms,
-    $repeat: 2
+    $animation-duration: 4000ms,
+    $iteration-count: 2
 );
 
 @include sprite-animation(
@@ -496,8 +503,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 27,
     $sprite-width: 756px,
     $sprite-height: 32px,
-    $animation-length: 3000ms,
-    $repeat: 2
+    $animation-duration: 3000ms,
+    $iteration-count: 2
 );
 
 @include sprite-animation(
@@ -505,8 +512,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 2,
     $sprite-width: 96px,
     $sprite-height: 32px,
-    $animation-length: 500ms,
-    $repeat: 10
+    $animation-duration: 500ms,
+    $iteration-count: 10
 );
 
 @include sprite-animation(
@@ -514,8 +521,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 2,
     $sprite-width: 110px,
     $sprite-height: 32px,
-    $animation-length: 500ms,
-    $repeat: 10
+    $animation-duration: 500ms,
+    $iteration-count: 10
 );
 
 @include sprite-animation(
@@ -523,8 +530,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 2,
     $sprite-width: 76px,
     $sprite-height: 32px,
-    $animation-length: 500ms,
-    $repeat: 10
+    $animation-duration: 500ms,
+    $iteration-count: 10
 );
 
 
@@ -533,8 +540,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 8,
     $sprite-width: 256px,
     $sprite-height: 32px,
-    $animation-length: 400ms,
-    $repeat: 4,
+    $animation-duration: 400ms,
+    $iteration-count: 4,
     $can-animate-forever: true
 );
 
@@ -543,8 +550,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 20,
     $sprite-width: 640px,
     $sprite-height: 32px,
-    $animation-length: 1200ms,
-    $repeat: 2,
+    $animation-duration: 1200ms,
+    $iteration-count: 2,
     $can-animate-forever: false
 );
 
@@ -553,8 +560,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 15,
     $sprite-width: 480px,
     $sprite-height: 32px,
-    $animation-length: 850ms,
-    $repeat: 4,
+    $animation-duration: 850ms,
+    $iteration-count: 4,
     $can-animate-forever: true
 );
 
@@ -563,8 +570,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 6,
     $sprite-width: 180px,
     $sprite-height: 30px,
-    $animation-length: 360ms,
-    $repeat: 2,
+    $animation-duration: 360ms,
+    $iteration-count: 2,
     $can-animate-forever: false
 );
 
@@ -573,8 +580,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 19,
     $sprite-width: 570px,
     $sprite-height: 30px,
-    $animation-length: 1900ms,
-    $repeat: 2,
+    $animation-duration: 1900ms,
+    $iteration-count: 2,
     $can-animate-forever: true
 );
 
@@ -583,8 +590,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 16,
     $sprite-width: 768px,
     $sprite-height: 32px,
-    $animation-length: 1600ms,
-    $repeat: 2,
+    $animation-duration: 1600ms,
+    $iteration-count: 2,
     $can-animate-forever: true
 );
 
@@ -593,8 +600,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 16,
     $sprite-width: 1024px,
     $sprite-height: 32px,
-    $animation-length: 400ms,
-    $repeat: 7,
+    $animation-duration: 400ms,
+    $iteration-count: 7,
     $can-animate-forever: true
 );
 
@@ -603,8 +610,8 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 4,
     $sprite-width: 128px,
     $sprite-height: 32px,
-    $animation-length: 400ms,
-    $repeat: 7,
+    $animation-duration: 400ms,
+    $iteration-count: 7,
     $can-animate-forever: true
 );
 
@@ -613,35 +620,24 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 158,
     $sprite-width: 4424px,
     $sprite-height: 28px,
-    $animation-length: 6500ms,
-    $repeat: 2,
+    $animation-duration: 6500ms,
+    $iteration-count: 2,
     $can-animate-forever: true,
     $extra-animation: true,
-    $extra-animation-length: 250ms,
-    $extra-animation-repeat: 3
+    $extra-animation-duration: 2000ms,
+    $extra-animation-iteration-count: 3
 ) {
-    0% {
-        transform: translate(0px 0px);
-    }
-    25% {
-        transform: translate(0px, 4px);
-    }
-    75% {
-        transform: rotate(-10deg);
-    }
-    100% {
-        transform: rotate(0deg);
-        transform-origin: 4px bottom;
-    }
-};
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
 @include sprite-animation(
     $file-name: WAYTOODANK,
     $frame-count: 90,
     $sprite-width: 2520px,
     $sprite-height: 28px,
-    $animation-length: 1800ms,
-    $repeat: 2,
+    $animation-duration: 1800ms,
+    $iteration-count: 2,
     $end-on-frame: 45,
     $can-animate-forever: true
 );
@@ -651,7 +647,7 @@ $spritesDir : '../../emotes/emoticons-animated/';
     $frame-count: 48,
     $sprite-width: 1680px,
     $sprite-height: 32px,
-    $animation-length: 12900ms,
-    $repeat: 2,
+    $animation-duration: 12900ms,
+    $iteration-count: 2,
     $can-animate-forever: true
 );
